@@ -35,7 +35,8 @@ setInterval(() => {
   const tsss = (total_seconds - (sm * 6 * 60)) % 36;
 
   document.getElementById("good_clock").innerHTML =
-    (add_if_lt10(" ", hours)) + ":" + sm + ":" + tss + ":" + tsss;
+    (add_if_lt10(" ", hours)) + ":" + sm + ":" +
+    tss + ":" + add_if_lt10("0", tsss);
 
 
   document.getElementById("here").innerHTML = format_normal_time(new Date())
