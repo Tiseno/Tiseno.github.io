@@ -8,6 +8,7 @@
     <pre id="good_clock"></pre>
     <pre id="here"></pre>
     <pre id="osaka"></pre>
+    <pre id="italian"></pre>
 </body>
 </html>
 
@@ -45,6 +46,11 @@ setInterval(() => {
       (new Date).getTimezoneOffset() * 60000 + 3600000 * 11)
   document.getElementById("osaka").innerHTML = format_normal_time(osaka_date)
 
+  const italian_date = date
+  const italian_hour = date.getHours() % 6
+  italian_date.setHours(italian_hour)
+  document.getElementById("italian").innerHTML = format_normal_time(italian_date)
+
 }, 100);
 </script>
 
@@ -53,6 +59,7 @@ setInterval(() => {
   font-size: 1.5em;
   background: #000;
   color: #FFF;
+  text-align: center;
 }
 </style>
 
