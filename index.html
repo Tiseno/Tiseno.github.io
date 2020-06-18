@@ -50,9 +50,31 @@ setInterval(() => {
 
 }, 100);
 
+// Promise which resolves to the user's location or Stockholm if permission is denied or its unavailable.
+const position = (() => {
+  const stockholm = { lat: 59.3293, lon: 18.0686 }
+  if (navigator.geolocation) {
+    return new Promise((resolve, reject) => {
+      navigator.geolocation.getCurrentPosition(
+        ({ coords }) => {
+          resolve({ lat: coords.latitude, lon: coords.longitude });
+        },
+        (/* location denied */) => {
+          console.log("Location access denied. Defaulting to Stockholm time.");
+          resolve(stockholm);
+        },
+      )
+    })
+  } else {
+    console.log("Location API not available. Defaulting to Stockholm time.");
+    return Promise.resolve(stockholm);
+  }
+})();
+
 async function ave_maria_start(date) {
+  const { lat, lon } = await position;
   const yyyymmdd = date.toISOString().slice(0,10);
-  const request = await fetch(`https://api.met.no/weatherapi/sunrise/2.0/.json?lat=59.3293&lon=18.0686&date=${yyyymmdd}&offset=+00:00`)
+  const request = await fetch(`https://api.met.no/weatherapi/sunrise/2.0/.json?lat=${lat}&lon=${lon}&date=${yyyymmdd}&offset=+00:00`);
   const response = await request.json();
   const sunset = new Date(response.location.time[0].sunset.time);
   // Starts 30 minutes after sunset
