@@ -60,7 +60,7 @@ setInterval(() => {
 
 // Promise which resolves to the user's location or Stockholm if permission is denied or its unavailable.
 const position = (() => {
-  const stockholm = { lat: 59.3293, lon: 18.0686 }
+  const stockholm = { lat: 59.3293, lon: 18.0686 };
   if (navigator.geolocation) {
     return new Promise((resolve, reject) => {
       navigator.geolocation.getCurrentPosition(
@@ -71,8 +71,8 @@ const position = (() => {
           console.log("Location access denied. Defaulting to Stockholm time.");
           resolve(stockholm);
         },
-      )
-    })
+      );
+    });
   } else {
     console.log("Location API not available. Defaulting to Stockholm time.");
     return Promise.resolve(stockholm);
@@ -123,7 +123,7 @@ async function display_italian_date() {
   }, 100);
 }
 
-display_italian_date()
+display_italian_date();
 </script>
 
 <style>
