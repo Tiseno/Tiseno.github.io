@@ -18,6 +18,14 @@ const add_if_lt = lim => (c, n) =>
 
 const add_if_lt10 = add_if_lt(10);
 
+const format_absolute_time = milliseconds => {
+    const seconds = milliseconds / 1000;
+    const minutes = seconds / 60;
+    const hours = minutes / 60;
+    const floor = Math.floor;
+    return format(floor(hours) % 6, floor(minutes) % 60, floor(seconds) % 60);
+}
+
 const format = (hours, minutes, seconds) =>
   add_if_lt10(" ", hours) + ":" +
   add_if_lt10("0", minutes) + ":" +
@@ -96,14 +104,6 @@ async function italian_reference_dates(date) {
     const tomorrow = new Date(today.getTime() + 24 * 60 * 60 * 1000);
     return [italian_start_today, await ave_maria_start(tomorrow)];
   }
-}
-
-function format_absolute_time(milliseconds) {
-    const seconds = milliseconds / 1000;
-    const minutes = seconds / 60;
-    const hours = minutes / 60;
-    const floor = Math.floor;
-    return format(floor(hours) % 6, floor(minutes) % 60, floor(seconds) % 60);
 }
 
 async function display_italian_date() {
