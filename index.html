@@ -18,10 +18,12 @@ const add_if_lt = lim => (c, n) =>
 
 const add_if_lt10 = add_if_lt(10);
 
-const format_normal_time = d =>
-  add_if_lt10(" ", d.getHours()) + ":" +
-  add_if_lt10("0", d.getMinutes()) + ":" +
-  add_if_lt10("0", d.getSeconds());
+const format = (hours, minutes, seconds) =>
+  add_if_lt10(" ", hours) + ":" +
+  add_if_lt10("0", minutes) + ":" +
+  add_if_lt10("0", seconds);
+
+const format_normal_time = d => format(d.getHours(), d.getMinutes(), d.getSeconds())
 
 setInterval(() => {
   const date = new Date();
@@ -46,12 +48,60 @@ setInterval(() => {
       (new Date).getTimezoneOffset() * 60000 + 3600000 * 11)
   document.getElementById("osaka").innerHTML = format_normal_time(osaka_date)
 
-  const italian_date = date
-  const italian_hour = date.getHours() % 6
-  italian_date.setHours(italian_hour)
-  document.getElementById("italian").innerHTML = format_normal_time(italian_date)
-
 }, 100);
+
+async function ave_maria_start(date) {
+  const yyyymmdd = date.toISOString().slice(0,10);
+  const request = await fetch(`https://api.met.no/weatherapi/sunrise/2.0/.json?lat=59.3293&lon=18.0686&date=${yyyymmdd}&offset=+00:00`)
+  const response = await request.json();
+  const sunset = new Date(response.location.time[0].sunset.time);
+  // Starts 30 minutes after sunset
+  return new Date(sunset.getTime() + 30 * 60 * 1000);
+}
+
+// returns [start_date, end_date] of the given date where
+//   - start_date is the starting time of the current italian day
+//   - end_date is the ending time of the current italian day 
+async function italian_reference_dates(date) {
+  const today = date;
+  const italian_start_today = await ave_maria_start(today);
+
+  if (today < italian_start_today) {
+    // Ave maria has not happened yet today, use yesterday's instead
+    const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
+    return [await ave_maria_start(yesterday), italian_start_today];
+  } else {
+    const tomorrow = new Date(today.getTime() + 24 * 60 * 60 * 1000);
+    return [italian_start_today, await ave_maria_start(tomorrow)];
+  }
+}
+
+function format_absolute_time(milliseconds) {
+    const seconds = milliseconds / 1000;
+    const minutes = seconds / 60;
+    const hours = minutes / 60;
+    const floor = Math.floor;
+    return format(floor(hours) % 6, floor(minutes) % 60, floor(seconds) % 60);
+}
+
+async function display_italian_date() {
+  const date = new Date();
+  let [start_date, end_date] = await italian_reference_dates(date);
+
+  setInterval(async function() {
+    const now = new Date();
+    if (now >= end_date) {
+      // It's a new day, update start_date and end_date
+      const [new_start, new_end] = await italian_reference_dates(now);
+      start_date = new_start;
+      end_date = new_end;
+    }
+    const elapsed_time = now.getTime() - start_date.getTime();
+    document.getElementById("italian").innerHTML = format_absolute_time(elapsed_time);
+  }, 100);
+}
+
+display_italian_date()
 </script>
 
 <style>
